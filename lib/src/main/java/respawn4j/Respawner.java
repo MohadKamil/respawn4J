@@ -1,6 +1,6 @@
 package respawn4j;
 
-import javax.sql.DataSource;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.HashSet;
 
@@ -14,36 +14,35 @@ public class Respawner {
         this.options = options;
     }
 
-    public static Respawner create(DataSource dataSource, RespawnerOptions options) throws SQLException {
+    public static Respawner create(Connection connection, RespawnerOptions options) throws SQLException {
 
         if(options == null) {
             options = RespawnerOptions.empty();
         }
         var respawner = new Respawner(options);
 
-        respawner.buildDeleteQuery(dataSource);
+        respawner.buildDeleteQuery(connection);
 
         return respawner;
     }
 
-    private void buildDeleteQuery(DataSource dataSource) throws SQLException {
-        var allTables = getAllTables(dataSource);
+    private void buildDeleteQuery(Connection connection) throws SQLException {
+        var allTables = getAllTables(connection);
 
         if(allTables.isEmpty()) {
             throw new IllegalArgumentException("No tables found in database");
         }
 
-        var allRelationships = getRelationships(dataSource);
+        var allRelationships = getRelationships(connection);
 
         var graphBuilder = new GraphBuilder(allTables, allRelationships);
 
         deleteSql = options.dbAdapter().buildDeleteCommandText(graphBuilder);
     }
 
-    private HashSet<Relationship> getRelationships(DataSource dataSource) throws SQLException {
+    private HashSet<Relationship> getRelationships(Connection connection) throws SQLException {
         var relationships = new HashSet<Relationship>();
         var commandText = options.dbAdapter().buildRelationshipCommandText(options);
-        var connection = dataSource.getConnection();
         var statement = connection.createStatement();
         var resultSet = statement.executeQuery(commandText);
         while (resultSet.next()) {
@@ -63,10 +62,9 @@ public class Respawner {
 
     }
 
-    private HashSet<Table> getAllTables(DataSource dataSource) throws SQLException {
+    private HashSet<Table> getAllTables(Connection connection) throws SQLException {
         var tables = new HashSet<Table>();
 
-        var connection = dataSource.getConnection();
         var statement = connection.createStatement();
         var getTablesQueryTest = options.dbAdapter().buildTableCommandText(options);
         var resultSet = statement.executeQuery(getTablesQueryTest);
@@ -83,5 +81,14 @@ public class Respawner {
 
     public String getDeleteSql() {
         return deleteSql;
+    }
+
+    public void resetDb(Connection connection) {
+        try {
+            var statement = connection.createStatement();
+            statement.execute(deleteSql);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
