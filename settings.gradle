@@ -6,3 +6,6 @@ rootProject.name = 'respawn4J'
 include('respawn4J')
 
 
+rootProject.children.each {
+    it.name = 'respawn4j'
+}
