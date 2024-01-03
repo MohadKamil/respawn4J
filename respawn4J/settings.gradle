@@ -3,6 +3,5 @@ plugins {
 }
 
 rootProject.name = 'respawn4J'
-include('respawn4J')
-
+include('lib')
 
