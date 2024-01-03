@@ -10,6 +10,10 @@ public record Table(String schema, String name, ArrayList<Relationship> relation
         this(schema, name, new ArrayList<>());
     }
 
+    public Table(String name) {
+        this(null, name, new ArrayList<>());
+    }
+
     public String getFullName(char quoteCharacter) {
         if(schema == null || schema.isBlank()) {
             return quoteCharacter + name + quoteCharacter;
