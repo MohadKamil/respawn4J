@@ -3,8 +3,8 @@ plugins {
     id 'maven-publish'
 }
 
-group = 'io.mohadkamil.github'
-version = '0.2.0'
+group = 'com.moniepoint.fx'
+version = '0.0.3-SNAPSHOT'
 
 repositories {
     mavenCentral()
@@ -43,6 +43,15 @@ publishing {
             credentials {
                 username = System.getenv('GITHUB_ACTOR')
                 password = System.getenv('GITHUB_TOKEN')
+            }
+        }
+        maven {
+            allowInsecureProtocol = true
+            name = 'archiva'
+            url = uri('http://178.79.143.118:8081/repository/internal')
+            credentials {
+                username = System.getenv('ARCHIVA_USERNAME')
+                password = System.getenv('ARCHIVA_PASSWORD')
             }
         }
     }
