@@ -38,14 +38,6 @@ publishing {
 
     repositories {
         maven {
-            name = 'GH'
-            url = uri('https://maven.pkg.github.com/mohadkamil/respawn4j')
-            credentials {
-                username = System.getenv('GITHUB_ACTOR')
-                password = System.getenv('GITHUB_TOKEN')
-            }
-        }
-        maven {
             allowInsecureProtocol = true
             name = 'archiva'
             url = uri('http://178.79.143.118:8081/repository/internal')
